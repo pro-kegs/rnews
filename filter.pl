@@ -1,5 +1,7 @@
 #!/usr/bin/perl -w
 use strict;
+use Getopt::Long;
+
 use MIME::QuotedPrint;
 use MIME::Base64;
 use HTML::FormatText;
@@ -94,10 +96,15 @@ sub cleanup_subject($) {
 my %headers;
 foreach (HEADERS) { $headers{uc $_} = 1; }
 
+my $test = 0;
+my $verbose = 0;
+GetOptions( "test" => \$test, "verbose" => \$verbose);
+
 #print $ARGV[0], "\n";
+my $dir = $ARGV[0] or die "Input directory missing.";
 
 
-opendir (my $dh, $ARGV[0]) or die "Can't open $ARGV[0]";
+opendir (my $dh, $dir) or die "Can't open $dir";
 # get list of files, skipping hidden files
 my @files = grep ( !/^\./, readdir($dh));
 closedir $dh;
@@ -106,7 +113,7 @@ foreach my $file (@files) {
 
 	#print $file, "\n";
 	# read the file in
-	my $path  = "${ARGV[0]}/${file}";
+	my $path  = "${dir}/${file}";
 	my $fh;
 	open ($fh, "<", $path) or die "Can't read ${path}\n";
 	my @file = <$fh>;
@@ -147,15 +154,17 @@ foreach my $file (@files) {
 
 
 	# save it back out
-	#open ($fh, ">", $path) or die "Can't write to ${path}\n";
 
 	my $head = join("\n", @head);
 	my $body = join("\n", @body);
 	$body = cleanup_body($body, $ct, $ce);
 
-
-	print $head, "\n", $body, "\n";
-	#print $fh $head, "\n", $body;
-	#close $fh;
+	if ($test) {
+		print $head, "\n", $body, "\n";
+	} else {
+		open ($fh, ">", $path) or die "Can't write to ${path}\n";
+		print $fh $head, "\n", $body, "\n";
+		close $fh;
+	}
 }
 exit 0;
