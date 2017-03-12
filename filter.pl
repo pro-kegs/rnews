@@ -128,7 +128,10 @@ foreach my $file (@files) {
 
 	foreach my $line (@file) {
 		chomp($line);
-		$state = 1 if $state == 0 && $line eq '';
+		if ($state == 0 && $line eq '') {
+			$state = 1;
+			next;
+		}
 		if ($state == 0) {
 			next if ($line =~ /^\s+/); # continuation of previous line...
 			if ($line =~m /^([A-Za-z_0-9-]+):\s+(.*)$/) {
@@ -155,8 +158,8 @@ foreach my $file (@files) {
 
 	# save it back out
 
-	my $head = join("\n", @head);
-	my $body = join("\n", @body);
+	my $head = join("\n", @head) . "\n";
+	my $body = join("\n", @body) . "\n";
 	$body = cleanup_body($body, $ct, $ce);
 
 	if ($test) {
