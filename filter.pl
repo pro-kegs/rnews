@@ -33,6 +33,9 @@ use constant HEADERS => qw(
 sub cleanup_body($$$) {
 	my ($body, $type, $encoding) = @_;
 
+	my $html = ($type =~ m#text/html#i);
+	my $qp = ($encoding =~ m/quoted-printable/i);
+
 	$body = decode_qp($body)
 		if ($encoding =~ m/quoted-printable/i);
 
@@ -46,6 +49,24 @@ sub cleanup_body($$$) {
 
 	# make sure lines are < 80 chars
 	my @lines = split("\n", $body);
+
+
+	# remove blank lines at the end.
+	# also remove "Link" if this is html (from rss)
+	while (scalar @lines) {
+		$_ = $lines[$#lines];
+
+		if ($_ =~ m/^\s*$/) {
+			pop @lines;
+			next;
+		}
+		if ($html && $_ eq 'Link') {
+			pop @lines;
+			next;
+		}
+		last;
+	}
+
 	my @tmp;
 
 	foreach my $x (@lines) {
