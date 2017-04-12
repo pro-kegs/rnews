@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # suck flags:
 # -Q - use NNTP_USER / NNTP_PASS
@@ -28,26 +28,39 @@ for x in servers/* ; do
 	NNTP_SERVER=""
 	NNTP_USER=""
 	NNTP_PASS=""
-	FLAGS=""
+	SUCK_FILTER_FLAGS=""
+	SUCK_FLAGS=""
 	name=${x##servers/}
 	if [ -e "$x/config.sh" ] ; then . "$x/config.sh" ; fi
 	if [ -n "$NNTP_SERVER" ] ; then
 		echo "Reading ${name}"
-		NNTP_USER="$NNTP_USER" NNTP_PASS="$NNTP_PASS" \
-		suck $NNTP_SERVER $FLAGS -Q -c -dd "$x" -dt tmp -dm msgs -HF "$x/history" \
+		export NNTP_USER NNTP_PASS SUCK_FILTER_FLAGS
+		suck $NNTP_SERVER $SUCK_FLAGS -Q -c -dd "$x" -dt tmp -dm msgs -HF "$x/history" \
 		-br "out/${name}.rnews" -y ./filter.pl
+		unset -v NNTP_USER NNTP_PASS SUCK_FILTER_FLAGS
 	fi
 done
 
 echo "Merging rnews"
 RNEWS=/var/spool/umdss/out/localhost/.tmp/rnews
-if [ ! -e "$RNEWS" ] ; then printf "To: rnews\n\n" > "$RNEWS" ; fi
+if [ ! -e "$RNEWS" ] ; then 
+	DATE1=`date +"%a %b %d %T %Y"`
+	DATE2=`date +"%a, %d %b %y %T %Z"`
+	cat <<-EOF > "$RNEWS"
+	From umdss $DATE1
+	Date: $DATE2
+	From: umdss
+	To: rnews
+	Subject: rnews batch
+	
+	EOF
+fi
 cat out/*.rnews >> "$RNEWS"
 rm out/*.rnews
 
-TMP=`mktemp -u /var/spool/umdss/out/localhost/XXXXXX`
+TMP=`mktemp -u /var/spool/umdss/in/localhost/XXXXXXXX`
 for x in 1 2 3 4 5 ; do
 	mv -n "$RNEWS" "$TMP" && break
-	TMP=`mktemp -u /var/spool/umdss/out/localhost/XXXXXX`
+	TMP=`mktemp -u /var/spool/umdss/in/localhost/XXXXXXXX`
 done
 
