@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 use strict;
-use Getopt::Long;
+use Getopt::Long qw(GetOptionsFromString);
 
 use MIME::QuotedPrint;
 use MIME::Base64;
@@ -33,9 +33,6 @@ use constant HEADERS => qw(
 sub cleanup_body($$$) {
 	my ($body, $type, $encoding) = @_;
 
-	my $html = ($type =~ m#text/html#i);
-	my $qp = ($encoding =~ m/quoted-printable/i);
-
 	$body = decode_qp($body)
 		if ($encoding =~ m/quoted-printable/i);
 
@@ -49,24 +46,6 @@ sub cleanup_body($$$) {
 
 	# make sure lines are < 80 chars
 	my @lines = split("\n", $body);
-
-
-	# remove blank lines at the end.
-	# also remove "Link" if this is html (from rss)
-	while (scalar @lines) {
-		$_ = $lines[$#lines];
-
-		if ($_ =~ m/^\s*$/) {
-			pop @lines;
-			next;
-		}
-		if ($html && $_ eq 'Link') {
-			pop @lines;
-			next;
-		}
-		last;
-	}
-
 	my @tmp;
 
 	foreach my $x (@lines) {
@@ -119,7 +98,11 @@ foreach (HEADERS) { $headers{uc $_} = 1; }
 
 my $test = 0;
 my $verbose = 0;
-GetOptions( "test" => \$test, "verbose" => \$verbose);
+my $retro = 0;
+
+GetOptionsFromString($ENV{'NNTP_FILTER_FLAGS'}, "retro" => \$retro) if $ENV{'NNTP_FILTER_FLAGS'};
+
+GetOptions( "test" => \$test, "verbose" => \$verbose, "retro" => \$retro);
 
 #print $ARGV[0], "\n";
 my $dir = $ARGV[0] or die "Input directory missing.";
@@ -164,6 +147,12 @@ foreach my $file (@files) {
 
 				if ($key eq 'SUBJECT') {
 					$line = "Subject: " . cleanup_subject($value);
+				}
+
+				if ($key eq 'NEWSGROUPS' && $retro) {
+					my @tmp = split(',', $value);
+					@tmp = map { 'retro.' . $_ } @tmp;
+					$line = 'Newsgroups: ' . join(',', @tmp);
 				}
 
 				push @head, $line if ($headers{$key});

@@ -28,10 +28,26 @@ for x in servers/* ; do
 	NNTP_SERVER=""
 	NNTP_USER=""
 	NNTP_PASS=""
+	FLAGS=""
 	name=${x##servers/}
 	if [ -e "$x/config.sh" ] ; then . "$x/config.sh" ; fi
 	if [ -n "$NNTP_SERVER" ] ; then
 		echo "Reading ${name}"
-		suck $NNTP_SERVER -Q -c -dd "$x" -dt tmp -dm msgs -br "out/${name}.rnews" -r 10000 -y ./filter.pl
+		NNTP_USER="$NNTP_USER" NNTP_PASS="$NNTP_PASS" \
+		suck $NNTP_SERVER $FLAGS -Q -c -dd "$x" -dt tmp -dm msgs -HF "$x/history" \
+		-br "out/${name}.rnews" -y ./filter.pl
 	fi
 done
+
+echo "Merging rnews"
+RNEWS=/var/spool/umdss/out/localhost/.tmp/rnews
+if [ ! -e "$RNEWS" ] ; then printf "To: rnews\n\n" > "$RNEWS" ; fi
+cat out/*.rnews >> "$RNEWS"
+rm out/*.rnews
+
+TMP=`mktemp -u /var/spool/umdss/out/localhost/XXXXXX`
+for x in 1 2 3 4 5 ; do
+	mv -n "$RNEWS" "$TMP" && break
+	TMP=`mktemp -u /var/spool/umdss/out/localhost/XXXXXX`
+done
+
