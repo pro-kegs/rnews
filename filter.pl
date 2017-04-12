@@ -100,7 +100,7 @@ my $test = 0;
 my $verbose = 0;
 my $retro = 0;
 
-GetOptionsFromString($ENV{'NNTP_FILTER_FLAGS'}, "retro" => \$retro) if $ENV{'NNTP_FILTER_FLAGS'};
+GetOptionsFromString($ENV{'SUCK_FILTER_FLAGS'}, "retro" => \$retro) if $ENV{'SUCK_FILTER_FLAGS'};
 
 GetOptions( "test" => \$test, "verbose" => \$verbose, "retro" => \$retro);
 
