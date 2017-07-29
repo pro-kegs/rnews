@@ -40,6 +40,10 @@ sub cleanup_body($$$) {
 	$body = decode_qp($body)
 		if ($encoding =~ m/quoted-printable/i);
 
+	$body = decode_base64($body)
+		if ($encoding =~ m/base64/i);
+
+
 	$body = HTML::FormatText->format_string($body, leftmargin => 0, rightmargin => 72)
 		if ($type =~ m#text/html#i);
 
