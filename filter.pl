@@ -24,6 +24,10 @@ use constant HEADERS => qw(
 );
 # Lines is obsolete and cleanup_body will change it anyhow
 
+my $test = 0;
+my $verbose = 0;
+my $retro = 0;
+my $gwene = 0;
 
 
 #
@@ -61,6 +65,7 @@ sub cleanup_body($$$) {
 		}
 		push(@tmp, $x);
 	}
+	pop @tmp if ($gwene && $tmp[-1] eq 'Link');
 
 	return join("\n", @tmp);
 }
@@ -96,13 +101,13 @@ sub cleanup_subject($) {
 my %headers;
 foreach (HEADERS) { $headers{uc $_} = 1; }
 
-my $test = 0;
-my $verbose = 0;
-my $retro = 0;
 
-GetOptionsFromString($ENV{'SUCK_FILTER_FLAGS'}, "retro" => \$retro) if $ENV{'SUCK_FILTER_FLAGS'};
 
-GetOptions( "test" => \$test, "verbose" => \$verbose, "retro" => \$retro);
+GetOptionsFromString($ENV{'SUCK_FILTER_FLAGS'},
+	"retro" => \$retro, "gwene" => \$gwene)
+	if $ENV{'SUCK_FILTER_FLAGS'};
+
+GetOptions( "test" => \$test, "verbose" => \$verbose, "retro" => \$retro, "gwene" => \$gwene);
 
 #print $ARGV[0], "\n";
 my $dir = $ARGV[0] or die "Input directory missing.";
