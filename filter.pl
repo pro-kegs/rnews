@@ -89,13 +89,15 @@ sub cleanup_subject($) {
 
 	$value =~ s/^\s+|\s+$//g;
 
-	if ($value =~ m/^=\?UTF-8\?([QB])\?(.*)\?=$/i) {
-		$value = $2;
-		my $e = $1;
-
-		$value = decode_qp($value) if $e eq 'Q';
-		$value = decode_base64($value) if $e eq 'B';
+	sub fn {
+		my ($type, $value) = @_;
+		$type = uc $type;
+		return decode_qp($value) if $type eq 'Q';
+		return decode_base64($value) if $type eq 'B';
+		return '';
 	}
+
+	$value =~ s/=\?UTF-8\?([QB])\?(.*?)\?=/&fn($1,$2)/ieg;
 	$value =~ s/[\x80-\xff]//g;
 	return $value;
 }
