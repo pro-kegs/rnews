@@ -149,6 +149,9 @@ foreach my $file (@files) {
 		}
 		if ($state == 0) {
 			next if ($line =~ /^\s+/); # continuation of previous line...
+
+			next if (length($line) > 160); # ProLine can only handle < 255.
+
 			if ($line =~m /^([A-Za-z_0-9-]+):\s+(.*)$/) {
 				my $key = uc $1;
 				my $value = $2;
