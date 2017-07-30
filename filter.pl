@@ -169,6 +169,17 @@ foreach my $file (@files) {
 					$line = 'Newsgroups: ' . join(',', @tmp);
 				}
 
+				if ($key eq 'DATE' && $retro) {
+					# fixup date format.
+					# Date: Fri, 24-Jul-87 03:43:36 EDT
+					# to
+					# Date: Mon, 12 Jun 2017 17:54:02 -0700 (PDT)
+
+					if ($value =~ s/( \d{2})-(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)-(\d{2}) /$1 $2 19$3 /) {
+						$line = "Date: $value";
+					}
+				}
+
 				push @head, $line if ($headers{$key});
 			}
 			next;
