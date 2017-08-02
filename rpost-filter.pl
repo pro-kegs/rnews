@@ -12,6 +12,7 @@ use constant HEADERS => qw(
 	Distribution
 	Organization
 	In-Reply-To
+	References
 );
 
 my %headers;
