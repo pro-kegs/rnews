@@ -1,0 +1,9 @@
+PATH="$HOME/bin:$PATH"
+SHELL="/bin/bash"
+DEFAULT="$HOME/Maildir"
+
+
+if (/^To: rnews[+-]es@/ ) && /^Newsgroups: /)
+{
+  to "|rpost-es"
+}
