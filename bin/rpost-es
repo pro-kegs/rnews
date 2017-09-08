@@ -1,0 +1,9 @@
+#!/bin/bash
+# stdin is the message.
+
+set -euo pipefail
+
+NNTP_SERVER=news.eternal-september.org
+export NNTP_USER=<USERNAME>
+export NNTP_PASS=<PASSWORD>
+rpost-filter | rpost "$NNTP_SERVER" -u -Q -D
