@@ -20,6 +20,7 @@
 # NNTP_USER=...
 # NNTP_PASS=...
 #
+PATH=$PATH:/usr/local/bin/
 
 mkdir -p tmp
 mkdir -p out
@@ -41,26 +42,7 @@ for x in servers/* ; do
 	fi
 done
 
-echo "Merging rnews"
-RNEWS=/var/spool/umdss/out/localhost/.tmp/rnews
-if [ ! -e "$RNEWS" ] ; then 
-	DATE1=`date +"%a %b %d %T %Y"`
-	DATE2=`date +"%a, %d %b %y %T %Z"`
-	cat <<-EOF > "$RNEWS"
-	From umdss $DATE1
-	Date: $DATE2
-	From: umdss
-	To: rnews
-	Subject: rnews batch
-	
-	EOF
-fi
-cat out/*.rnews >> "$RNEWS"
-rm out/*.rnews
-
-TMP=`mktemp -u /var/spool/umdss/in/localhost/XXXXXXXX`
-for x in 1 2 3 4 5 ; do
-	mv -n "$RNEWS" "$TMP" && break
-	TMP=`mktemp -u /var/spool/umdss/in/localhost/XXXXXXXX`
+echo "Sending rnews"
+for x in out/*.rnews ; do
+	umdss-mail -s "rnews batch" -f umdss rnews@pro-kegs "$x" && rm "$x"
 done
-
