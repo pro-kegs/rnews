@@ -1,0 +1,5 @@
+NNTP_SERVER=nntp.olduse.net
+NNTP_USER=
+NNTP_PASS=
+SUCK_FLAGS=-n
+SUCK_FILTER_FLAGS="--retro"
