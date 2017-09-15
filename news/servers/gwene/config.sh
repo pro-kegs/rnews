@@ -1,0 +1,4 @@
+NNTP_SERVER=news.gwene.org
+NNTP_USER=
+NNTP_PASS=
+SUCK_FILTER_FLAGS="--gwene"
