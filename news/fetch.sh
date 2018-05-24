@@ -36,7 +36,7 @@ for x in servers/* ; do
 	if [ -n "$NNTP_SERVER" ] ; then
 		echo "Reading ${name}"
 		export NNTP_USER NNTP_PASS SUCK_FILTER_FLAGS
-		suck $NNTP_SERVER $SUCK_FLAGS -Q -c -dd "$x" -dt tmp -dm msgs -HF "$x/history" \
+		suck $NNTP_SERVER $SUCK_FLAGS -r 32768 -Q -c -dd "$x" -dt tmp -dm msgs -HF "$x/history" \
 		-br "out/${name}.rnews" -y ./filter.pl
 		unset -v NNTP_USER NNTP_PASS SUCK_FILTER_FLAGS
 	fi
