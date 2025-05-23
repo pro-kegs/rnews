@@ -1,0 +1,10 @@
+# Exim filter
+
+# https://www.exim.org/exim-html-current/doc/html/spec_html/filter_ch-exim_filter_files.html#SECTmbox
+#
+# this pipes mail for @rnews-es to the rpost-es utility.
+
+if $local_part_suffix is "-es" then
+  unseen pipe $home/bin/rpost-es
+endif
+
